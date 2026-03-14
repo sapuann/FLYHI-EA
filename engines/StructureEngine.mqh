@@ -7,17 +7,25 @@
 class StructureEngine
 {
 public:
-   // Detect bullish break of structure
+   // Detect bullish break of structure (simple: previous swing high broken)
    bool BullishBOS(const string symbol, ENUM_TIMEFRAMES tf)
    {
-      // TODO: Implement swing/BOS logic Copilot
-      return false;
+      int bars = iBars(symbol, tf);
+      if(bars < 5) return false;
+      double prevHigh = iHigh(symbol, tf, 2);
+      double lastHigh = iHigh(symbol, tf, 1);
+      double currHigh = iHigh(symbol, tf, 0);
+      return (lastHigh > prevHigh) && (currHigh > lastHigh);
    }
-   // Detect bearish break of structure
+   // Detect bearish break of structure (simple: previous swing low broken)
    bool BearishBOS(const string symbol, ENUM_TIMEFRAMES tf)
    {
-      // TODO: Implement swing/BOS logic Copilot
-      return false;
+      int bars = iBars(symbol, tf);
+      if(bars < 5) return false;
+      double prevLow = iLow(symbol, tf, 2);
+      double lastLow = iLow(symbol, tf, 1);
+      double currLow = iLow(symbol, tf, 0);
+      return (lastLow < prevLow) && (currLow < lastLow);
    }
 };
 
