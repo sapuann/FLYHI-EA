@@ -86,5 +86,72 @@ void OnTick()
          Logger::Error("Failed to place short entry.");
         }
      }
+
+   // --- Trailing stop untuk semua order ---
+   TrailAllOrders();
+  }
+//+------------------------------------------------------------------+
+//| Trail all BUY & SELL orders for current symbol                   |
+//+------------------------------------------------------------------+
+void TrailAllOrders()
+  {
+   double trailPips = 20; // Tetapan trailing dalam pips, boleh ubah jika mahu
+   double trail = trailPips * _Point;
+
+   for(int i=0;i<PositionsTotal();i++)
+     {
+      if(PositionGetSymbol(i)!=_Symbol) continue;
+      if(PositionGetInteger(POSITION_MAGIC)!=MagicNumber) continue;
+
+      ulong   ticket   = PositionGetTicket(i);
+      double  openPrice= PositionGetDouble(POSITION_PRICE_OPEN);
+      double  sl       = PositionGetDouble(POSITION_SL);
+      double  tp       = PositionGetDouble(POSITION_TP);
+      double  price    = 0.0;
+      double  newSL    = 0.0;
+
+      int type = PositionGetInteger(POSITION_TYPE);
+
+      if(type==POSITION_TYPE_BUY)
+        {
+         price = SymbolInfoDouble(_Symbol,SYMBOL_BID);
+         if(price - openPrice > trail)
+           {
+            newSL = price - trail;
+            if(sl < newSL || sl == 0)
+              {
+               MqlTradeRequest req={0};
+               MqlTradeResult res={0};
+               req.action = TRADE_ACTION_SLTP;
+               req.symbol = _Symbol;
+               req.position = ticket;
+               req.sl = NormalizeDouble(newSL, _Digits);
+               req.tp = tp;
+               req.magic = MagicNumber;
+               OrderSend(req, res);
+              }
+           }
+        }
+      else if(type==POSITION_TYPE_SELL)
+        {
+         price = SymbolInfoDouble(_Symbol,SYMBOL_ASK);
+         if(openPrice - price > trail)
+           {
+            newSL = price + trail;
+            if(sl > newSL || sl == 0)
+              {
+               MqlTradeRequest req={0};
+               MqlTradeResult res={0};
+               req.action = TRADE_ACTION_SLTP;
+               req.symbol = _Symbol;
+               req.position = ticket;
+               req.sl = NormalizeDouble(newSL, _Digits);
+               req.tp = tp;
+               req.magic = MagicNumber;
+               OrderSend(req, res);
+              }
+           }
+        }
+     }
   }
 //+------------------------------------------------------------------+
