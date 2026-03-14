@@ -7,17 +7,47 @@
 class TradeEngine
 {
 public:
-    // Basic long entry
+    // Basic long entry - real MT5 order send
     bool LongEntry(const string symbol, double lots, double sl, double tp)
     {
-        // TODO: Place buy trade logic Copilot
-        return false;
+        MqlTradeRequest request;
+        MqlTradeResult result;
+        ZeroMemory(request);
+        ZeroMemory(result);
+
+        request.action   = TRADE_ACTION_DEAL;
+        request.symbol   = symbol;
+        request.volume   = lots;
+        request.type     = ORDER_TYPE_BUY;
+        request.price    = SymbolInfoDouble(symbol, SYMBOL_ASK);
+        request.sl       = sl;
+        request.tp       = tp;
+        request.magic    = 123456; // optionally, guna MagicNumber jika mahu dynamic
+        request.deviation= 20;
+        request.type_filling = ORDER_FILLING_FOK;
+
+        if(!OrderSend(request, result))
+        {
+            Print("OrderSend failed: ", result.retcode);
+            return false;
+        }
+
+        if(result.retcode == TRADE_RETCODE_DONE)
+        {
+            Print("Buy order placed, ticket: ", result.order);
+            return true;
+        }
+        else
+        {
+            Print("Order failed, retcode: ", result.retcode);
+            return false;
+        }
     }
-    // Basic short entry
+
+    // Basic short entry (optional, belum pakai)
     bool ShortEntry(const string symbol, double lots, double sl, double tp)
     {
-        // TODO: Place sell trade logic Copilot
-        return false;
+        return false; // Boleh tambah nanti
     }
 };
 
