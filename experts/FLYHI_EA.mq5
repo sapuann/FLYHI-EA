@@ -59,7 +59,7 @@ void OnTick()
       double lot = risk.CalculateLot(RiskPerTrade, SL_Pips, AccountInfoDouble(ACCOUNT_BALANCE));
       double sl  = SymbolInfoDouble(symbol, SYMBOL_BID) - SL_Pips * _Point;
       double tp  = SymbolInfoDouble(symbol, SYMBOL_BID) + TP_Pips * _Point;
-      if(trade.LongEntry(symbol, lot, sl, tp))
+      if(trade.LongEntry(symbol, lot, sl, tp, MagicNumber))
         {
          Logger::Info("Long entry placed!");
          Telemetry::Event("LONG ENTRY SIGNAL PLACED");
@@ -67,6 +67,23 @@ void OnTick()
       else
         {
          Logger::Error("Failed to place long entry.");
+        }
+     }
+
+   // --- Logic: Entry Short jika Bearish BOS dikesan ---
+   if(structure.BearishBOS(symbol, tf))
+     {
+      double lot = risk.CalculateLot(RiskPerTrade, SL_Pips, AccountInfoDouble(ACCOUNT_BALANCE));
+      double sl  = SymbolInfoDouble(symbol, SYMBOL_BID) + SL_Pips * _Point;
+      double tp  = SymbolInfoDouble(symbol, SYMBOL_BID) - TP_Pips * _Point;
+      if(trade.ShortEntry(symbol, lot, sl, tp, MagicNumber))
+        {
+         Logger::Info("Short entry placed!");
+         Telemetry::Event("SHORT ENTRY SIGNAL PLACED");
+        }
+      else
+        {
+         Logger::Error("Failed to place short entry.");
         }
      }
   }
