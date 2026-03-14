@@ -53,17 +53,21 @@ void OnTick()
    string symbol = _Symbol;
    ENUM_TIMEFRAMES tf = PERIOD_M5;
 
-   // --- Sample usage of engines (stub, not live logic yet) ---
-   if(structure.BullishBOS(symbol, tf) &&
-      liquidity.SweepLow(symbol, tf) &&
-      imbalance.BullishFVG(symbol, tf) &&
-      pressure.BullishPressure(symbol, tf) )
+   // --- Logic: Entry Long jika Bullish BOS dikesan ---
+   if(structure.BullishBOS(symbol, tf))
      {
-      double lot = risk.CalculateLot(1,30,AccountInfoDouble(ACCOUNT_BALANCE));
-      trade.LongEntry(symbol, lot, 100, 200);
-      Telemetry::Event("LONG ENTRY SIGNAL");
-      VisualDebug::DrawEntry(TimeCurrent(), SymbolInfoDouble(symbol,SYMBOL_BID), true);
+      double lot = risk.CalculateLot(RiskPerTrade, SL_Pips, AccountInfoDouble(ACCOUNT_BALANCE));
+      double sl  = SymbolInfoDouble(symbol, SYMBOL_BID) - SL_Pips * _Point;
+      double tp  = SymbolInfoDouble(symbol, SYMBOL_BID) + TP_Pips * _Point;
+      if(trade.LongEntry(symbol, lot, sl, tp))
+        {
+         Logger::Info("Long entry placed!");
+         Telemetry::Event("LONG ENTRY SIGNAL PLACED");
+        }
+      else
+        {
+         Logger::Error("Failed to place long entry.");
+        }
      }
-   // --- end stub ---
   }
 //+------------------------------------------------------------------+
