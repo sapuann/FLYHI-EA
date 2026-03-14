@@ -7,8 +7,8 @@
 class TradeEngine
 {
 public:
-    // Basic long entry - real MT5 order send
-    bool LongEntry(const string symbol, double lots, double sl, double tp)
+    // Basic long entry - real MT5 order send (SL/TP/Magic dinamik)
+    bool LongEntry(const string symbol, double lots, double sl, double tp, int magic)
     {
         MqlTradeRequest request;
         MqlTradeResult result;
@@ -22,7 +22,7 @@ public:
         request.price    = SymbolInfoDouble(symbol, SYMBOL_ASK);
         request.sl       = sl;
         request.tp       = tp;
-        request.magic    = 123456; // optionally, guna MagicNumber jika mahu dynamic
+        request.magic    = magic;
         request.deviation= 20;
         request.type_filling = ORDER_FILLING_FOK;
 
@@ -44,10 +44,10 @@ public:
         }
     }
 
-    // Basic short entry (optional, belum pakai)
-    bool ShortEntry(const string symbol, double lots, double sl, double tp)
+    // Basic short entry - akan tambah selepas ini (dummy dahulu)
+    bool ShortEntry(const string symbol, double lots, double sl, double tp, int magic)
     {
-        return false; // Boleh tambah nanti
+        return false;
     }
 };
 
