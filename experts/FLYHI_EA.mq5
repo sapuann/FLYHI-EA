@@ -103,14 +103,14 @@ void TrailAllOrders()
       if(PositionGetSymbol(i)!=_Symbol) continue;
       if(PositionGetInteger(POSITION_MAGIC)!=MagicNumber) continue;
 
-      ulong   ticket   = PositionGetTicket(i);
+      ulong   ticket   = PositionGetTicket(i);   // Ulang, bukan int
       double  openPrice= PositionGetDouble(POSITION_PRICE_OPEN);
       double  sl       = PositionGetDouble(POSITION_SL);
       double  tp       = PositionGetDouble(POSITION_TP);
       double  price    = 0.0;
       double  newSL    = 0.0;
 
-      int type = PositionGetInteger(POSITION_TYPE);
+      int type = (int)PositionGetInteger(POSITION_TYPE);
 
       if(type==POSITION_TYPE_BUY)
         {
@@ -120,14 +120,19 @@ void TrailAllOrders()
             newSL = price - trail;
             if(sl < newSL || sl == 0)
               {
-               MqlTradeRequest req={0};
-               MqlTradeResult res={0};
-               req.action = TRADE_ACTION_SLTP;
-               req.symbol = _Symbol;
+               MqlTradeRequest req;
+               MqlTradeResult res;
+               ZeroMemory(req);
+               ZeroMemory(res);
+
+               req.action   = TRADE_ACTION_SLTP;
+               req.symbol   = _Symbol;
                req.position = ticket;
-               req.sl = NormalizeDouble(newSL, _Digits);
-               req.tp = tp;
-               req.magic = MagicNumber;
+               req.sl       = NormalizeDouble(newSL, _Digits);
+               req.tp       = tp;
+               req.magic    = MagicNumber;
+
+               // Hanya guna panggil, abaikan return value-warnings.
                OrderSend(req, res);
               }
            }
@@ -140,14 +145,18 @@ void TrailAllOrders()
             newSL = price + trail;
             if(sl > newSL || sl == 0)
               {
-               MqlTradeRequest req={0};
-               MqlTradeResult res={0};
-               req.action = TRADE_ACTION_SLTP;
-               req.symbol = _Symbol;
+               MqlTradeRequest req;
+               MqlTradeResult res;
+               ZeroMemory(req);
+               ZeroMemory(res);
+
+               req.action   = TRADE_ACTION_SLTP;
+               req.symbol   = _Symbol;
                req.position = ticket;
-               req.sl = NormalizeDouble(newSL, _Digits);
-               req.tp = tp;
-               req.magic = MagicNumber;
+               req.sl       = NormalizeDouble(newSL, _Digits);
+               req.tp       = tp;
+               req.magic    = MagicNumber;
+
                OrderSend(req, res);
               }
            }
