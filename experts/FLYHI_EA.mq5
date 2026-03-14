@@ -2,6 +2,12 @@
 //|                  FLYHI_EA                                        |
 //| Modular MT5 EA for XAUUSD, multi-engine Copilot ready            |
 //+------------------------------------------------------------------+
+
+input double   RiskPerTrade = 1.0;     // Risk per trade (%)
+input int      SL_Pips      = 30;      // Stop Loss in pips
+input int      TP_Pips      = 60;      // Take Profit in pips
+input int      MagicNumber  = 123456;  // EA trade ID
+
 #include <engines/StructureEngine.mqh>
 #include <engines/LiquidityEngine.mqh>
 #include <engines/ImbalanceEngine.mqh>
