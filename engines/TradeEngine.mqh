@@ -4,33 +4,34 @@
 class TradeEngine
 {
 private:
-   int  filling_mode_buy;
-   int  filling_mode_sell;
+   ENUM_ORDER_TYPE_FILLING filling_mode_buy;
+   ENUM_ORDER_TYPE_FILLING filling_mode_sell;
    bool init_filling_mode;
 
    // Ambil filling mode yang broker tetapkan untuk symbol (paling selamat)
-   int GetSymbolFillingMode(const string symbol)
+   ENUM_ORDER_TYPE_FILLING GetSymbolFillingMode(const string symbol)
    {
-      int mode = (int)SymbolInfoInteger(symbol, SYMBOL_FILLING_MODE);
+      int raw = (int)SymbolInfoInteger(symbol, SYMBOL_FILLING_MODE);
+
+      if(raw == ORDER_FILLING_FOK)    return ORDER_FILLING_FOK;
+      if(raw == ORDER_FILLING_IOC)    return ORDER_FILLING_IOC;
+      if(raw == ORDER_FILLING_RETURN) return ORDER_FILLING_RETURN;
 
       // Safety fallback (jarang diperlukan)
-      if(mode != ORDER_FILLING_FOK && mode != ORDER_FILLING_IOC && mode != ORDER_FILLING_RETURN)
-         mode = ORDER_FILLING_RETURN;
-
-      return mode;
+      return ORDER_FILLING_RETURN;
    }
 
    void InitFillingModes(const string symbol)
    {
       if(init_filling_mode) return;
 
-      int mode = GetSymbolFillingMode(symbol);
+      ENUM_ORDER_TYPE_FILLING mode = GetSymbolFillingMode(symbol);
       filling_mode_buy  = mode;
       filling_mode_sell = mode;
 
       init_filling_mode = true;
 
-      Print("TradeEngine init filling mode for ", symbol, ": ", GetFillingModeName(mode));
+      Print("TradeEngine init filling mode for ", symbol, ": ", GetFillingModeName((int)mode));
    }
 
 public:
@@ -64,7 +65,7 @@ public:
       if(!OrderSend(request, result))
       {
          Print("OrderSend(BUY) failed: retcode=", result.retcode,
-               " filling=", GetFillingModeName(request.type_filling));
+               " filling=", GetFillingModeName((int)request.type_filling));
          return false;
       }
 
@@ -75,7 +76,7 @@ public:
       }
 
       Print("OrderSend(BUY) rejected: retcode=", result.retcode,
-            " filling=", GetFillingModeName(request.type_filling));
+            " filling=", GetFillingModeName((int)request.type_filling));
       return false;
    }
 
@@ -103,7 +104,7 @@ public:
       if(!OrderSend(request, result))
       {
          Print("OrderSend(SELL) failed: retcode=", result.retcode,
-               " filling=", GetFillingModeName(request.type_filling));
+               " filling=", GetFillingModeName((int)request.type_filling));
          return false;
       }
 
@@ -114,7 +115,7 @@ public:
       }
 
       Print("OrderSend(SELL) rejected: retcode=", result.retcode,
-            " filling=", GetFillingModeName(request.type_filling));
+            " filling=", GetFillingModeName((int)request.type_filling));
       return false;
    }
 
